@@ -1,136 +1,239 @@
+let tex;
+let base;
+let font;
+let UI;
+let dimension;
+let true_resolution = 800;
+
+let min_radius = 300;
+let radius = min_radius;
+let max_radius = 600;
+let zoom = 20;
+
 let radian = Math.PI / 180;
-let sphere_points = [];
-let sphere_mesh = [];
-let radius = 300;
-let resolution = 2.5;
-let angle = 1 * radian;
 let center = [0, 0];
+let angle = 1.5 * radian;
+let resolution = 1;
+let last_drawn_point = ["N"];
+
+let paint_mode = 1;
+let globe_mode = true;
+
+function preload() {
+    font = loadFont('calibri-regular.ttf');
+}
 
 function setup() {
-  createCanvas(800, 800);
-  generate_sphere();
-  generate_sphere_mesh();
-  stroke(0);
-  strokeWeight(1);
-  noStroke();
-  textSize(40);
+    dimension = Math.min(windowWidth, windowHeight) * 0.95;
+    createCanvas(dimension, dimension, WEBGL);
+
+    textFont(font);
+
+    base = createGraphics(720, 360);
+    base.noStroke();
+    create_base_texture();
+
+    tex = createGraphics(720, 360);
+    tex.noSmooth();
+
+    UI = createGraphics(true_resolution, 100);
+    UI.textSize(40);
+
+    noStroke();
 }
 
 function draw() {
-  background(0);
-  fill(255);
-  text(Math.round(frameRate()), 0, 50);
-  translate(width/2, height/2);
-  scale(1, -1);
-  draw_sphere();
-  
-  if (keyIsDown(LEFT_ARROW)) {
-    center[1] -= angle;
-    rotate_sphere(center);
-  }
-  if (keyIsDown(RIGHT_ARROW)) {
-    center[1] += angle;
-    rotate_sphere(center);
-  }
-  if (keyIsDown(UP_ARROW)) {
-    center[0] -= angle;
-    if (center[0] < -Math.PI/2) {
-      center[0] = -Math.PI/2;
+    if (globe_mode) {
+        background(0);
+        scale(dimension / true_resolution);
+        ortho();
+
+        directionalLight(255, 255, 255, 0, 0, -1);
+        directionalLight(100, 100, 100, 0, 0, -1);
+
+        if (keyIsDown(LEFT_ARROW)) {
+            center[1] -= angle;
+            if (center[1] < 0) {
+                center[1] += 2 * Math.PI;
+            }
+        }
+        if (keyIsDown(RIGHT_ARROW)) {
+            center[1] += angle;
+            if (center[1] >= 2 * Math.PI) {
+                center[1] -= 2 * Math.PI;
+            }
+        }
+        if (keyIsDown(UP_ARROW)) {
+            center[0] += angle;
+            if (center[0] > Math.PI / 2) {
+                center[0] = Math.PI / 2;
+            }
+        }
+        if (keyIsDown(DOWN_ARROW)) {
+            center[0] -= angle;
+            if (center[0] < -Math.PI / 2) {
+                center[0] = -Math.PI / 2;
+            }
+        }
+        if (keyIsDown(83)) {
+            radius -= zoom;
+            if (radius < min_radius) {
+                radius = min_radius;
+            }
+        }
+        if (keyIsDown(87)) {
+            radius += zoom;
+            if (radius > max_radius) {
+                radius = max_radius;
+            }
+        }
+
+        draw_sphere(center);
+
+        if (mouseIsPressed) {
+            let mx = mouseX - width / 2;
+            let my = height / 2 - mouseY;
+            if (mouseButton == LEFT) {
+                paint(mx * true_resolution / dimension, my * true_resolution / dimension);
+            }
+
+        }
+        UI.clear();
+        UI.fill(255);
+        UI.textAlign(LEFT);
+        UI.text([Math.round(center[0] / radian), Math.round(center[1] / radian)], 10, 45);
+        UI.textAlign(RIGHT);
+        if (paint_mode == 0) {
+            UI.text("Erasing", true_resolution - 10, 45);
+        } else {
+            if (paint_mode == 1) {
+                UI.fill(255, 0, 0);
+            } else if (paint_mode == 2) {
+                UI.fill(0, 255, 0);
+            } else {
+                UI.fill(0, 0, 255);
+            }
+            UI.text("Painting", true_resolution - 10, 45);
+        }
+        image(UI, -true_resolution / 2, -true_resolution / 2);
+    } else {
+        background(255);
+        ortho();
+        image(tex, -width, -height / 2, width, height);
+        image(tex, 0, -height / 2, width, height);
     }
-    rotate_sphere(center);
-  }
-  if (keyIsDown(DOWN_ARROW)) {
-    center[0] += angle;
-    if (center[0] > Math.PI/2) {
-      center[0] = Math.PI/2;
-    }
-    rotate_sphere(center);
-  }
 }
 
-function generate_sphere() {
-  sphere_points = [];
-  for (let latitude = -90/resolution; latitude < 91/resolution; latitude++) {
-    let array = [];
-    for (let longitude = 0; longitude < 360/resolution; longitude ++) {
-      let beta = latitude * resolution * radian;
-      let lambda = longitude * resolution * radian;
-      
-      let x = Math.cos(beta) * Math.cos(lambda);
-      let y = Math.cos(beta) * Math.sin(lambda);
-      let z = Math.sin(beta);
-      array.push([x, y, z, latitude, longitude]);
+function keyPressed() {
+    if (key === 'm') {
+        globe_mode = !globe_mode;
+        if (globe_mode) {
+            resizeCanvas(dimension, dimension);
+        } else {
+            resizeCanvas(dimension, dimension / 2);
+        }
     }
-    sphere_points.push(array);
-  }
+    if (key === '1') {
+        paint_mode = 1;
+    } else if (key === '2') {
+        paint_mode = 2;
+    } else if (key === '3') {
+        paint_mode = 3;
+    } else if (key === 'e') {
+        paint_mode = 0;
+    }
 }
 
-function generate_sphere_mesh() {
-  sphere_mesh = [];
-  for (let i = 0; i < sphere_points.length - 1; i++) {
-    for (let j = 0; j < sphere_points[0].length; j++) {
-      
-      let beta = i + 1;
-      let lambda = j + 1;
-      if (lambda == sphere_points[0].length) {
-        lambda = 0;
-      }
-      
-      let mesh_square = [i, j, beta, lambda];
-      sphere_mesh.push(mesh_square);
+function mousePressed() {
+    let mx = mouseX - width / 2;
+    let my = height / 2 - mouseY;
+    if (mx * mx + my * my < radius * radius) {
+        last_drawn_point = [mx * true_resolution / dimension, my * true_resolution / dimension];
     }
-  }
 }
 
-function draw_sphere() {
-  for (let k = 0; k < sphere_mesh.length; k++) {
-    let polygon = sphere_mesh[k];
-    let i = polygon[0];
-    let j = polygon[1];
-    let beta = polygon[2];
-    let lambda = polygon[3];
-    
-    let x1 = sphere_points[i][j][0];
-    let x2 = sphere_points[beta][j][0];
-    let x3 = sphere_points[beta][lambda][0];
-    let x4 = sphere_points[i][lambda][0];
-    
-    let x_avg = (x1 + x2 + x3 + x4)/4;
-    
-    if (x_avg > 0) {
-      let y1 = radius * sphere_points[i][j][1];
-      let z1 = radius * sphere_points[i][j][2];
-      let y2 = radius * sphere_points[beta][j][1];
-      let z2 = radius * sphere_points[beta][j][2];
-      let y3 = radius * sphere_points[beta][lambda][1];
-      let z3 = radius * sphere_points[beta][lambda][2];
-      let y4 = radius * sphere_points[i][lambda][1];
-      let z4 = radius * sphere_points[i][lambda][2];
-      fill(x_avg * 255);
-      quad(y1, z1, y2, z2, y3, z3, y4, z4);
-    }
-  }
+function mouseReleased() {
+    last_drawn_point = ["N"];
 }
 
-function rotate_sphere(center_coords) {
-  sphere_points = [];
-  for (let latitude = -90/resolution; latitude < 91/resolution; latitude++) {
-    let array = [];
-    for (let longitude = 0; longitude < 360/resolution; longitude ++) {
-      let beta = latitude * resolution * radian;
-      let lambda = longitude * resolution * radian;
-      
-      let x = Math.cos(beta) * Math.cos(lambda);
-      let y = Math.cos(beta) * Math.sin(lambda);
-      let z = Math.sin(beta);
-      
-      let x_new = x * Math.cos(center_coords[1]) + y * Math.sin(center_coords[1]);
-      let y_new = x * -Math.sin(center_coords[1]) + y * Math.cos(center_coords[1]);
-      
-      let x_new_new = x_new * Math.cos(center_coords[0]) - z * Math.sin(center_coords[0]);
-      let z_new = x_new * Math.sin(center_coords[0]) + z * Math.cos(center_coords[0]);
-      array.push([x_new_new, y_new, z_new, latitude, longitude]);
+function draw_sphere(angles) {
+    push();
+    rotateX(-angles[0]);
+    rotateY(-angles[1]);
+    texture(base);
+    sphere(radius, 60, 30);
+    texture(tex);
+    sphere(radius, 60, 30);
+    pop();
+}
+
+function create_base_texture() {
+    base.background(255);
+    for (let i = 0; i < 9; i++) {
+        for (let j = 0; j < 18; j++) {
+            if ((i + j) % 2 == 0) {
+                base.fill(240);
+                base.rect(j * base.width / 18, i * base.height / 9, base.width / 18, base.height / 9);
+            }
+        }
     }
-    sphere_points.push(array);
-  }
+}
+
+function paint(mX, mY) {
+    if (last_drawn_point[0] !== "N") {
+        let dx = Math.abs(mX - last_drawn_point[0]);
+        let dy = Math.abs(mY - last_drawn_point[1]);
+        let steps = max(dx, dy) + 1;
+        for (let i = 0; i < steps; i++) {
+            let x = last_drawn_point[0] + (mX - last_drawn_point[0]) / steps * i;
+            let y = last_drawn_point[1] + (mY - last_drawn_point[1]) / steps * i;
+            paint_point(x, y);
+
+        }
+    }
+    last_drawn_point = [mX, mY];
+}
+
+function paint_point(mX, mY) {
+    if (mX * mX + mY * mY < radius * radius) {
+        let y = mX / radius;
+        let z = mY / radius;
+        let x = Math.sqrt(1 - y * y - z * z);
+
+        let x_new = x * Math.cos(center[0]) - z * Math.sin(center[0]);
+        let z_new = x * Math.sin(center[0]) + z * Math.cos(center[0]);
+
+        let x_new_new = x_new * Math.cos(-center[1]) + y * Math.sin(-center[1]);
+        let y_new = x_new * -Math.sin(-center[1]) + y * Math.cos(-center[1]);
+
+        let beta = Math.asin(z_new);
+        let lambda = Math.atan2(y_new, x_new_new)
+        if (lambda < 0) {
+            lambda += 2 * Math.PI;
+        }
+
+        let squishing = 1 / Math.cos(beta);
+        let h = tex.height / 180 * resolution;
+        let w = h * squishing;
+        let rectX = tex.width / (2 * Math.PI) * lambda;
+        let rectY = tex.height / Math.PI * (Math.PI - (beta + Math.PI / 2));
+
+
+        tex.strokeWeight(0);
+        if (paint_mode == 1) {
+            tex.fill(255, 0, 0);
+        } else if (paint_mode == 2) {
+            tex.fill(0, 255, 0);
+        } else if (paint_mode == 3) {
+            tex.fill(0, 0, 255);
+        } else {
+            tex.erase();
+        }
+
+        tex.rect(rectX - w / 2, rectY - h / 2, w, h);
+        tex.rect(rectX - w / 2 + tex.width, rectY - h / 2, w, h);
+        tex.rect(rectX - w / 2 - tex.width, rectY - h / 2, w, h);
+
+        tex.noErase();
+    }
 }
