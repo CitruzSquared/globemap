@@ -169,11 +169,11 @@ function draw_sphere(angles) {
 
 function create_base_texture() {
     base.background(255);
-    for (let i = 0; i < 9; i++) {
-        for (let j = 0; j < 18; j++) {
+    for (let i = 0; i < 360 / 18; i++) {
+        for (let j = 0; j < 180 / 18; j++) {
             if ((i + j) % 2 == 0) {
                 base.fill(240);
-                base.rect(j * base.width / 18, i * base.height / 9, base.width / 18, base.height / 9);
+                base.rect(j * base.width / (360 / 18), i * base.height / (180 / 18), base.width / (360 / 18), base.height / (180 / 18));
             }
         }
     }
