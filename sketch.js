@@ -105,7 +105,12 @@ function draw() {
         UI.clear();
         UI.fill(255);
         UI.textAlign(LEFT);
-        UI.text([Math.round(center[0] / radian), Math.round(center[1] / radian)], 10, 45);
+        let str = "";
+        if (center[0] >= 0) {
+            str = "+";
+        }
+        str += Math.round(center[0] / radian) + "°, +" + Math.round(center[1] / radian) + "°";
+        UI.text(str, 10, 45);
         UI.textAlign(RIGHT);
         if (paint_mode == 0) {
             UI.text("Erasing", true_resolution - 10, 45);
@@ -119,6 +124,7 @@ function draw() {
             }
             UI.text("Painting", true_resolution - 10, 45);
         }
+        translate(0, 0, 600);
         image(UI, -true_resolution / 2, -true_resolution / 2);
     } else {
         background(255);
