@@ -3,7 +3,6 @@ let base;
 let font;
 let UI;
 let img;
-let loaded = false;
 let dimension;
 let true_resolution = 800;
 
@@ -129,7 +128,7 @@ function draw() {
     } else {
         background(255);
         ortho();
-        if (loaded) {
+        if (img) {
             image(base, -width, -height / 2, width, height);
             image(base, 0, -height / 2, width, height);
         }
@@ -174,7 +173,7 @@ function draw_sphere(angles) {
     push();
     rotateX(-angles[0]);
     rotateY(-angles[1]);
-    if (img && !loaded) {
+    if (img) {
         base.background(255);
         base.image(img, base.width / 2, 0, base.width, base.height);
         base.image(img, -base.width / 2, 0, base.width, base.height);
@@ -262,7 +261,6 @@ function handleImage(file) {
     if (file.type === 'image') {
         img = createImg(file.data, '');
         img.hide();
-        loaded = false;
     } else {
         img = null;
     }
