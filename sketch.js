@@ -2,6 +2,8 @@ let tex;
 let base;
 let font;
 let UI;
+let img;
+let loaded = false;
 let dimension;
 let true_resolution = 800;
 
@@ -22,6 +24,9 @@ let globe_mode = true;
 
 function setup() {
     dimension = Math.min(windowWidth, windowHeight) * 0.95;
+
+    input = createFileInput(handleImage, true);
+
     createCanvas(dimension, dimension, WEBGL);
 
     base = createGraphics(720, 360);
@@ -114,6 +119,10 @@ function draw() {
     } else {
         background(255);
         ortho();
+        if (img) {
+            image(base, -width, -height / 2, width, height);
+            image(base, 0, -height / 2, width, height);
+        }
         image(tex, -width, -height / 2, width, height);
         image(tex, 0, -height / 2, width, height);
     }
@@ -152,10 +161,15 @@ function mouseReleased() {
 }
 
 function draw_sphere(angles) {
-    load_image();
     push();
     rotateX(-angles[0]);
     rotateY(-angles[1]);
+    if (img) {
+        base.clear();
+        base.image(img, base.width / 2, 0, base.width, base.height);
+        base.image(img, -base.width / 2, 0, base.width, base.height);
+        loaded = true;
+    }
     texture(base);
     sphere(radius, 60, 30);
     texture(tex);
@@ -234,12 +248,12 @@ function paint_point(mX, mY) {
     }
 }
 
-function load_image() {
-    const selectedFile = document.getElementById('upload');
-    const myImageFile = selectedFile.files[0];
-    if (myImageFile) {
-        let urlOfImageFile = URL.createObjectURL(myImageFile);
-        let imageObject = loadImage(urlOfImageFile);
-        base.image(imageObject, base.width, base.height);
+function handleImage(file) {
+    if (file.type === 'image') {
+        img = createImg(file.data, '');
+        img.hide();
+
+    } else {
+        img = null;
     }
 }
