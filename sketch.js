@@ -37,7 +37,7 @@ function setup() {
 
     tex = createGraphics(720, 360);
 
-    UI = createGraphics(true_resolution, 100);
+    UI = createGraphics(true_resolution, true_resolution);
     UI.textSize(40);
 
     combined = createGraphics(720, 360);
@@ -92,11 +92,15 @@ function draw() {
 
         draw_sphere(center);
 
+        let mx = mouseX - width / 2;
+        let my = height / 2 - mouseY;
+        mx *= true_resolution / dimension;
+        my *= true_resolution / dimension
+
         if (mouseIsPressed) {
-            let mx = mouseX - width / 2;
-            let my = height / 2 - mouseY;
+
             if (mouseButton == LEFT) {
-                paint(mx * true_resolution / dimension, my * true_resolution / dimension);
+                paint(mx, my);
             }
 
         }
@@ -109,6 +113,19 @@ function draw() {
         }
         str += Math.round(center[0] / radian) + "°, +" + Math.round(center[1] / radian) + "°";
         UI.text(str, 10, 45);
+
+        str = "";
+        if (mx * mx + my * my < radius * radius) {
+            let coord = convert_mouse_to_coord(mx, my);
+            let beta = coord[0] / radian;
+            let lambda = coord[1] / radian;
+            if (beta >= 0) {
+                str = "+";
+            }
+            str += Math.round(beta) + "°, +" + Math.round(lambda) + "°";
+            UI.text(str, 10, UI.height - 15);
+        }
+
         UI.textAlign(RIGHT);
         if (paint_mode == 0) {
             UI.text("Erasing", true_resolution - 10, 45);
@@ -228,18 +245,9 @@ function paint(mX, mY) {
 
 function paint_point(mX, mY) {
     if (mX * mX + mY * mY < radius * radius) {
-        let y = mX / radius;
-        let z = mY / radius;
-        let x = Math.sqrt(1 - y * y - z * z);
-
-        let x_new = x * Math.cos(center[0]) - z * Math.sin(center[0]);
-        let z_new = x * Math.sin(center[0]) + z * Math.cos(center[0]);
-
-        let x_new_new = x_new * Math.cos(-center[1]) + y * Math.sin(-center[1]);
-        let y_new = x_new * -Math.sin(-center[1]) + y * Math.cos(-center[1]);
-
-        let beta = Math.asin(z_new);
-        let lambda = Math.atan2(y_new, x_new_new)
+        let coord = convert_mouse_to_coord(mX, mY);
+        let beta = coord[0];
+        let lambda = coord[1];
         if (lambda < 0) {
             lambda += 2 * Math.PI;
         }
@@ -282,4 +290,23 @@ function handleImage(file) {
     } else {
         img = null;
     }
+}
+
+function convert_mouse_to_coord(mX, mY) {
+    let y = mX / radius;
+    let z = mY / radius;
+    let x = Math.sqrt(1 - y * y - z * z);
+
+    let x_new = x * Math.cos(center[0]) - z * Math.sin(center[0]);
+    let z_new = x * Math.sin(center[0]) + z * Math.cos(center[0]);
+
+    let x_new_new = x_new * Math.cos(-center[1]) + y * Math.sin(-center[1]);
+    let y_new = x_new * -Math.sin(-center[1]) + y * Math.cos(-center[1]);
+
+    let beta = Math.asin(z_new);
+    let lambda = Math.atan2(y_new, x_new_new);
+    if (lambda < 0) {
+        lambda += 2 * Math.PI;
+    }
+    return [beta, lambda];
 }
