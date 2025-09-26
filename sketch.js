@@ -22,10 +22,14 @@ let last_drawn_point = ["N"];
 let paint_mode = 1;
 let globe_mode = true;
 
+
 function setup() {
     dimension = Math.min(windowWidth, windowHeight) * 0.95;
 
-    input = createFileInput(handleImage, true);
+    input = createFileInput(handleImage, false);
+    const file_input = document.getElementsByTagName("input")[0];
+    const maindiv = document.getElementById("maindiv");
+    maindiv.appendChild(file_input);
 
     createCanvas(dimension, dimension, WEBGL);
 
