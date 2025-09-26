@@ -1,6 +1,6 @@
 let tex;
 let base;
-let font;
+let nothing;
 let UI;
 let img;
 let dimension;
@@ -31,16 +31,17 @@ function setup() {
     maindiv.appendChild(file_input);
 
     createCanvas(dimension, dimension, WEBGL);
-
     base = createGraphics(720, 360);
+    base1 = createGraphics(720, 360);
     base.noStroke();
     create_base_texture();
 
     tex = createGraphics(720, 360);
-
+    blendMode(ADD);
     UI = createGraphics(true_resolution, 100);
     UI.textSize(40);
-
+    nothing = createGraphics(720, 360);
+    nothing.background(255);
     noStroke();
 }
 
@@ -131,14 +132,22 @@ function draw() {
         translate(0, 0, 600);
         image(UI, -true_resolution / 2, -true_resolution / 2);
     } else {
-        background(255);
         ortho();
         if (img) {
+            base.image(tex, 0, 0, base.width, base.height);
             image(base, -width, -height / 2, width, height);
             image(base, 0, -height / 2, width, height);
+        } else {
+            nothing.image(tex, 0, 0, base.width, base.height);
+            image(nothing, -width, -height / 2, width, height);
+            image(nothing, 0, -height / 2, width, height);
         }
-        image(tex, -width, -height / 2, width, height);
-        image(tex, 0, -height / 2, width, height);
+        nothing.background(255);
+        if (img) {
+            base.background(255);
+            base.image(img, base.width / 2, 0, base.width, base.height);
+            base.image(img, -base.width / 2, 0, base.width, base.height);
+        }
     }
 }
 
@@ -188,12 +197,17 @@ function draw_sphere(angles) {
         base.background(255);
         base.image(img, base.width / 2, 0, base.width, base.height);
         base.image(img, -base.width / 2, 0, base.width, base.height);
-        loaded = true;
     }
+    base.image(tex, 0, 0, base.width, base.height);
     texture(base);
     sphere(radius, 60, 30);
-    texture(tex);
-    sphere(radius, 60, 30);
+    if (img) {
+        base.background(255);
+        base.image(img, base.width / 2, 0, base.width, base.height);
+        base.image(img, -base.width / 2, 0, base.width, base.height);
+    } else {
+        create_base_texture();
+    }
     pop();
 }
 
