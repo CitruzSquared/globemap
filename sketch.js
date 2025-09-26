@@ -237,9 +237,9 @@ function paint_point(mX, mY) {
 function load_image() {
     const selectedFile = document.getElementById('upload');
     const myImageFile = selectedFile.files[0];
-    //let urlOfImageFile = URL.createObjectURL(myImageFile);
     if (myImageFile) {
-        let imageObject = loadImage(myImageFile);
+        let urlOfImageFile = URL.createObjectURL(myImageFile);
+        let imageObject = loadImage(urlOfImageFile);
         base.image(imageObject, base.width, base.height);
     }
 }
