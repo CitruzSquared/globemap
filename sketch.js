@@ -14,20 +14,15 @@ let radian = Math.PI / 180;
 let center = [0, 0];
 let angle = 1.5 * radian;
 let resolution = 1;
+let base_resolution = 20;
 let last_drawn_point = ["N"];
 
 let paint_mode = 1;
 let globe_mode = true;
 
-function preload() {
-    font = loadFont('calibri-regular.ttf');
-}
-
 function setup() {
     dimension = Math.min(windowWidth, windowHeight) * 0.95;
     createCanvas(dimension, dimension, WEBGL);
-
-    textFont(font);
 
     base = createGraphics(720, 360);
     base.noStroke();
@@ -169,11 +164,11 @@ function draw_sphere(angles) {
 
 function create_base_texture() {
     base.background(255);
-    for (let i = 0; i < 360 / 18; i++) {
-        for (let j = 0; j < 180 / 18; j++) {
+    for (let i = 0; i < (180 / base_resolution); i++) {
+        for (let j = 0; j < (360 / base_resolution); j++) {
             if ((i + j) % 2 == 0) {
                 base.fill(240);
-                base.rect(j * base.width / (360 / 18), i * base.height / (180 / 18), base.width / (360 / 18), base.height / (180 / 18));
+                base.rect(j * base.width / (360 / base_resolution), i * base.height / (180 / base_resolution), base.width / (360 / base_resolution), base.height / (180 / base_resolution));
             }
         }
     }
