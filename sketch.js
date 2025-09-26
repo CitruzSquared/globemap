@@ -1,6 +1,6 @@
 let tex;
 let base;
-let nothing;
+let combined;
 let UI;
 let img;
 let dimension;
@@ -32,16 +32,15 @@ function setup() {
 
     createCanvas(dimension, dimension, WEBGL);
     base = createGraphics(720, 360);
-    base1 = createGraphics(720, 360);
     base.noStroke();
     create_base_texture();
 
     tex = createGraphics(720, 360);
-    blendMode(ADD);
+
     UI = createGraphics(true_resolution, 100);
     UI.textSize(40);
-    nothing = createGraphics(720, 360);
-    nothing.background(255);
+
+    combined = createGraphics(720, 360);
     noStroke();
 }
 
@@ -134,20 +133,15 @@ function draw() {
     } else {
         ortho();
         if (img) {
-            base.image(tex, 0, 0, base.width, base.height);
-            image(base, -width, -height / 2, width, height);
-            image(base, 0, -height / 2, width, height);
+            combined.image(base, 0, 0, base.width, base.height);
+            combined.image(tex, 0, 0, tex.width, tex.height);
         } else {
-            nothing.image(tex, 0, 0, base.width, base.height);
-            image(nothing, -width, -height / 2, width, height);
-            image(nothing, 0, -height / 2, width, height);
+            combined.background(255);
+            combined.image(tex, 0, 0, tex.width, tex.height);
         }
-        nothing.background(255);
-        if (img) {
-            base.background(255);
-            base.image(img, base.width / 2, 0, base.width, base.height);
-            base.image(img, -base.width / 2, 0, base.width, base.height);
-        }
+        image(combined, -width, -height / 2, width, height);
+        image(combined, 0, -height / 2, width, height);
+        combined.background(255);
     }
 }
 
@@ -198,16 +192,10 @@ function draw_sphere(angles) {
         base.image(img, base.width / 2, 0, base.width, base.height);
         base.image(img, -base.width / 2, 0, base.width, base.height);
     }
-    base.image(tex, 0, 0, base.width, base.height);
-    texture(base);
+    combined.image(base, 0, 0, base.width, base.height);
+    combined.image(tex, 0, 0, tex.width, tex.height);
+    texture(combined);
     sphere(radius, 60, 30);
-    if (img) {
-        base.background(255);
-        base.image(img, base.width / 2, 0, base.width, base.height);
-        base.image(img, -base.width / 2, 0, base.width, base.height);
-    } else {
-        create_base_texture();
-    }
     pop();
 }
 
