@@ -12,7 +12,7 @@ let zoom = 20;
 
 let radian = Math.PI / 180;
 let center = [0, 0];
-let angle = 1.5 * radian;
+let angle = 1.25 * radian;
 let resolution = 1;
 let base_resolution = 18;
 let last_drawn_point = ["N"];
