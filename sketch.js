@@ -37,7 +37,6 @@ function setup() {
     create_base_texture();
 
     tex = createGraphics(720, 360);
-    tex.noSmooth();
 
     UI = createGraphics(true_resolution, 100);
     UI.textSize(40);
@@ -117,9 +116,15 @@ function draw() {
             if (paint_mode == 1) {
                 UI.fill(255, 0, 0);
             } else if (paint_mode == 2) {
+                UI.fill(255, 255, 0);
+            } else if (paint_mode == 3) {
                 UI.fill(0, 255, 0);
-            } else {
+            } else if (paint_mode == 4) {
+                UI.fill(0, 255, 255);
+            } else if (paint_mode == 5) {
                 UI.fill(0, 0, 255);
+            } else if (paint_mode == 6) {
+                UI.fill(255, 0, 255);
             }
             UI.text("Painting", true_resolution - 10, 45);
         }
@@ -152,6 +157,12 @@ function keyPressed() {
         paint_mode = 2;
     } else if (key === '3') {
         paint_mode = 3;
+    } else if (key === '4') {
+        paint_mode = 4;
+    } else if (key === '5') {
+        paint_mode = 5;
+    } else if (key === '6') {
+        paint_mode = 6;
     } else if (key === 'e') {
         paint_mode = 0;
     }
@@ -237,14 +248,19 @@ function paint_point(mX, mY) {
         let rectX = tex.width / (2 * Math.PI) * lambda;
         let rectY = tex.height / Math.PI * (Math.PI - (beta + Math.PI / 2));
 
-
-        tex.strokeWeight(0);
+        tex.noStroke();
         if (paint_mode == 1) {
             tex.fill(255, 0, 0);
         } else if (paint_mode == 2) {
-            tex.fill(0, 255, 0);
+            tex.fill(255, 255, 0);
         } else if (paint_mode == 3) {
+            tex.fill(0, 255, 0);
+        } else if (paint_mode == 4) {
+            tex.fill(0, 255, 255);
+        } else if (paint_mode == 5) {
             tex.fill(0, 0, 255);
+        } else if (paint_mode == 6) {
+            tex.fill(255, 0, 255);
         } else {
             tex.erase();
         }
