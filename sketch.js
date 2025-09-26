@@ -14,7 +14,7 @@ let radian = Math.PI / 180;
 let center = [0, 0];
 let angle = 1.5 * radian;
 let resolution = 1;
-let base_resolution = 20;
+let base_resolution = 18;
 let last_drawn_point = ["N"];
 
 let paint_mode = 1;
