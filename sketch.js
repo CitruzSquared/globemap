@@ -152,6 +152,7 @@ function mouseReleased() {
 }
 
 function draw_sphere(angles) {
+    load_image();
     push();
     rotateX(-angles[0]);
     rotateY(-angles[1]);
@@ -231,4 +232,12 @@ function paint_point(mX, mY) {
 
         tex.noErase();
     }
+}
+
+function load_image() {
+    const selectedFile = document.getElementById('upload');
+    const myImageFile = selectedFile.files[0];
+    //let urlOfImageFile = URL.createObjectURL(myImageFile);
+    let imageObject = loadImage(myImageFile);
+    base.image(imageObject, base.width, base.height);
 }
