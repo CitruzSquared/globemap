@@ -238,6 +238,8 @@ function load_image() {
     const selectedFile = document.getElementById('upload');
     const myImageFile = selectedFile.files[0];
     //let urlOfImageFile = URL.createObjectURL(myImageFile);
-    let imageObject = loadImage(myImageFile);
-    base.image(imageObject, base.width, base.height);
+    if (myImageFile) {
+        let imageObject = loadImage(myImageFile);
+        base.image(imageObject, base.width, base.height);
+    }
 }
