@@ -119,7 +119,7 @@ function draw() {
     } else {
         background(255);
         ortho();
-        if (img) {
+        if (loaded) {
             image(base, -width, -height / 2, width, height);
             image(base, 0, -height / 2, width, height);
         }
@@ -164,8 +164,8 @@ function draw_sphere(angles) {
     push();
     rotateX(-angles[0]);
     rotateY(-angles[1]);
-    if (img) {
-        base.clear();
+    if (img && !loaded) {
+        base.background(255);
         base.image(img, base.width / 2, 0, base.width, base.height);
         base.image(img, -base.width / 2, 0, base.width, base.height);
         loaded = true;
