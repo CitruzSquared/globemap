@@ -262,7 +262,7 @@ function handleImage(file) {
     if (file.type === 'image') {
         img = createImg(file.data, '');
         img.hide();
-
+        loaded = false;
     } else {
         img = null;
     }
