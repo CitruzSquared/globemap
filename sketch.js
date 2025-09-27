@@ -31,16 +31,16 @@ function setup() {
     maindiv.appendChild(file_input);
 
     createCanvas(dimension, dimension, WEBGL);
-    base = createGraphics(720, 360);
+    base = createGraphics(1000, 500);
     base.noStroke();
     create_base_texture();
 
-    tex = createGraphics(720, 360);
+    tex = createGraphics(1000, 500);
 
     UI = createGraphics(true_resolution, true_resolution);
     UI.textSize(40);
 
-    combined = createGraphics(720, 360);
+    combined = createGraphics(1000, 500);
     noStroke();
 }
 
