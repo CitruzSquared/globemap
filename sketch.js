@@ -89,6 +89,10 @@ function draw() {
                 radius = max_radius;
             }
         }
+        resolution = 1;
+        if (keyIsDown(16)) {
+            resolution = 0.5;
+        }
 
         draw_sphere(center);
 
@@ -127,6 +131,12 @@ function draw() {
         }
 
         UI.textAlign(RIGHT);
+        str = "Big Brush";
+        if (resolution == 0.5) {
+            str = "Small Brush";
+        }
+        UI.text(str, true_resolution - 10, UI.height - 15);
+
         if (paint_mode == 0) {
             UI.text("Erasing", true_resolution - 10, 45);
         } else {
